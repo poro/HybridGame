@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Outpost</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <h1 id="title">Outpost</h1>
+        <div id="phase" class="muted"></div>
+      </div>
+      <div class="row">
+        <span id="countdown" class="countdown chip"></span>
+        <button id="rulesBtn">Rules</button>
+      </div>
+    </div>
+    <div id="banner"></div>
+    <div id="rules" class="panel mono" style="display:none; white-space:pre-wrap; margin-bottom:12px"></div>
+    <div id="game" class="game">
+      <div id="left"></div>
+      <div class="panel">
+        <div id="feed" class="feed"></div>
+        <div id="compose" class="compose"></div>
+      </div>
+      <div id="side" class="side" style="display:none"></div>
+    </div>
+  </div>
+  <script src="/play.js"></script>
+</body>
+</html>

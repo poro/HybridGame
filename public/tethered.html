@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tethered</title>
+  <link rel="stylesheet" href="/style.css" />
+  <style>
+    .tg { display: grid; gap: 14px; grid-template-columns: minmax(0, 560px) minmax(0, 1fr); align-items: start; }
+    @media (max-width: 900px) { .tg { grid-template-columns: 1fr; } }
+    .stage { position: relative; width: 100%; aspect-ratio: var(--ar); border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: #9cc3e6; }
+    .stage svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+    .bubbles { position: absolute; inset: 0; pointer-events: none; }
+    .bubble {
+      position: absolute; transform: translate(-50%, calc(-100% - 26px)); max-width: 62%; min-width: 120px; width: max-content;
+      background: #fffdf7; color: #1f2420; border-radius: 12px; padding: 6px 9px; font-size: 12.5px; line-height: 1.3;
+      box-shadow: 0 3px 10px rgba(0,0,0,.25); transition: opacity .35s; text-align: left;
+    }
+    .bubble::after { content: ""; position: absolute; left: 50%; bottom: -7px; margin-left: -7px; border: 7px solid transparent; border-bottom: 0; border-top-color: #fffdf7; }
+    .bubble b { display: block; font-size: 11px; color: #6b716b; }
+    .bubble.thought { background: #eef0ff; font-style: italic; color: #3a3f6b; transform: translate(-50%, 30px); }
+    .bubble.thought::after { top: -7px; bottom: auto; border-top: 0; border-bottom: 7px solid #eef0ff; }
+    .bubble.thinking { font-weight: 700; letter-spacing: 2px; padding: 3px 9px; }
+    .bubble.fade { opacity: 0; }
+    .hud { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+    .hearts { font-size: 18px; letter-spacing: 2px; }
+    .storm { flex: 1; min-width: 120px; }
+    .storm .bar > i { background: linear-gradient(90deg, #6ea8d8, #3b4a6b, #1d2236); }
+    .transcript { height: 520px; overflow-y: auto; }
+    .tr-round { margin: 12px 0 4px; font-weight: 700; font-size: 12.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+    .tr-msg { padding: 4px 0; border-bottom: 1px dashed var(--line); font-size: 14px; }
+    .tr-note { color: #5b5fa0; font-style: italic; font-size: 12.5px; margin-left: 12px; }
+    .tr-narr { background: var(--chip); border-radius: 8px; padding: 6px 9px; margin: 6px 0; font-size: 13px; }
+    .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+    .controls { margin-top: 10px; }
+    .tile-target { cursor: pointer; }
+    .legend span { margin-right: 10px; white-space: nowrap; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <h1 id="title">Tethered</h1>
+        <div id="phase" class="muted"></div>
+      </div>
+      <div class="row">
+        <span id="countdown" class="countdown chip" style="display:none"></span>
+        <a id="lobby" href="/" class="small">Lobby</a>
+        <button id="rulesBtn">Rules</button>
+      </div>
+    </div>
+    <div id="banner"></div>
+    <div id="rules" class="panel mono" style="display:none; white-space:pre-wrap; margin-bottom:12px"></div>
+    <div class="tg">
+      <div>
+        <div class="hud panel" style="padding:10px">
+          <span class="chip" id="roundChip">Round –</span>
+          <span class="hearts" id="hearts" title="Injuries left"></span>
+          <div class="storm small"><span class="muted">Storm</span><div class="bar"><i id="stormBar" style="width:0%"></i></div></div>
+        </div>
+        <div class="stage" id="stage">
+          <svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
+          <div class="bubbles" id="bubbles"></div>
+        </div>
+        <div class="legend small muted" style="margin-top:6px">
+          <span>▦ rock hold</span><span>▬ ledge (safe)</span><span>▢ smooth slab (no holds)</span><span style="color:#c0392b">✖ loose hold</span><span>⚓ anchored</span><br><span>Helmet: <b style="color:#f2a93b">human</b> · <b style="color:#d97757">Claude</b> · <b style="color:#19a07a">OpenAI</b> · <b style="color:#8b93a1">bot</b> (hidden in blind games until the end)</span>
+        </div>
+        <div id="replayControls" class="row controls" style="display:none">
+          <button id="playPause" class="primary">Pause</button>
+          <button id="restart">Restart</button>
+          <label class="small">Speed <select id="speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
+          <label class="small"><input type="checkbox" id="showThoughts" checked /> Show AI thoughts</label>
+        </div>
+      </div>
+      <div>
+        <div class="panel" id="you" style="margin-bottom:12px; display:none"></div>
+        <div class="panel" id="compose" style="margin-bottom:12px; display:none"></div>
+        <div class="panel">
+          <h2>Rope team</h2>
+          <div id="team" class="small" style="margin-bottom:10px"></div>
+          <h2>Radio</h2>
+          <div id="transcript" class="transcript"></div>
+        </div>
+        <div class="panel" id="side" style="margin-top:12px; display:none"></div>
+      </div>
+    </div>
+  </div>
+  <script src="/tethered.js"></script>
+</body>
+</html>

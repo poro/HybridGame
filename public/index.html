@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HybridGame Lobby</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <h1>HybridGame</h1>
+        <div class="muted small">Mixed human + AI teams play co-op games. Set up a table, share the join links, and watch from the observer view.</div>
+      </div>
+      <div id="keys" class="row small"></div>
+    </div>
+
+    <div class="lobby">
+      <div class="panel">
+        <h2>New game</h2>
+        <div class="row" style="margin-bottom:12px">
+          <label>Game <select id="game">
+            <option value="tethered" selected>Tethered: roped climb (visual, simple)</option>
+            <option value="outpost">Outpost: survival camp (text, deeper)</option>
+          </select></label>
+        </div>
+        <div id="seats"></div>
+        <div class="row" style="margin-bottom:12px">
+          <button id="addSeat">+ Add seat</button>
+          <span class="muted small">Seat types: human, opus, sonnet, haiku, fable, luna, bot, bot:selfish, bot:random, anthropic:&lt;id&gt;, openai:&lt;id&gt;. Add <span class="mono">@low</span>/<span class="mono">@high</span> for effort.</span>
+        </div>
+        <div class="row" style="margin-bottom:8px">
+          <label class="row"><input type="checkbox" id="reveal" /> Tell players who is human / AI</label>
+        </div>
+        <div class="row" style="margin-bottom:8px">
+          <label>Condition label <input id="condition" placeholder="e.g. pilot-blind" /></label>
+        </div>
+        <div class="row" style="margin-bottom:12px">
+          <label><span id="daysLabel">Rounds</span> <input id="days" type="number" min="3" max="40" placeholder="default" style="width:80px" /></label>
+          <label>Chat rounds/day <input id="rounds" type="number" min="1" max="5" placeholder="default" style="width:80px" /></label>
+          <label>Seed <input id="seed" type="number" placeholder="random" style="width:110px" /></label>
+        </div>
+        <button class="primary" id="create">Create game</button>
+        <div id="created" style="margin-top:14px"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Games on this server</h2>
+        <table>
+          <thead><tr><th>Game</th><th>Seats</th><th>Status</th><th></th></tr></thead>
+          <tbody id="list"></tbody>
+        </table>
+        <h2 style="margin-top:18px">Finished games</h2>
+        <table>
+          <thead><tr><th>Game</th><th>Team</th><th>Result</th><th></th></tr></thead>
+          <tbody id="past"></tbody>
+        </table>
+        <p class="muted small">Logs and summaries are written to <span class="mono">data/games/</span>. Run <span class="mono">npm run analyze</span> to compare team compositions.</p>
+      </div>
+    </div>
+  </div>
+
+<script>
+const seatsEl = document.getElementById("seats");
+const DEFAULT = ["human", "opus", "haiku"];
+document.getElementById("game").onchange = (e) => {
+  document.getElementById("daysLabel").textContent = e.target.value === "outpost" ? "Days" : "Rounds";
+};
+let aliases = [];
+
+function seatRow(value) {
+  const row = document.createElement("div");
+  row.className = "seat";
+  row.innerHTML = `<span class="muted">#</span>
+    <input list="aliasList" value="${value}" />
+    <select title="effort (AI seats)"><option value="">effort: default</option><option>low</option><option>medium</option><option>high</option><option>xhigh</option><option>max</option></select>
+    <button title="remove">✕</button>`;
+  row.querySelector("button").onclick = () => { row.remove(); renumber(); };
+  seatsEl.appendChild(row);
+  renumber();
+}
+function renumber() { [...seatsEl.children].forEach((r, i) => (r.firstElementChild.textContent = i + 1)); }
+
+async function init() {
+  const p = await fetch("/api/presets").then((r) => r.json());
+  aliases = p.aliases;
+  const dl = document.createElement("datalist");
+  dl.id = "aliasList";
+  dl.innerHTML = aliases.map((a) => `<option value="${a}">`).join("");
+  document.body.appendChild(dl);
+  document.getElementById("keys").innerHTML =
+    `<span class="chip ${p.keys.anthropic ? "ok" : "bad"}">Anthropic key ${p.keys.anthropic ? "set" : "missing"}</span>
+     <span class="chip ${p.keys.openai ? "ok" : "bad"}">OpenAI key ${p.keys.openai ? "set" : "missing"}</span>`;
+  DEFAULT.forEach(seatRow);
+  refresh();
+  setInterval(refresh, 4000);
+}
+
+document.getElementById("addSeat").onclick = () => seatRow("bot");
+
+document.getElementById("create").onclick = async () => {
+  const seats = [...seatsEl.children].map((r) => {
+    const v = r.querySelector("input").value.trim();
+    const e = r.querySelector("select").value;
+    return e && v !== "human" && !v.startsWith("bot") ? `${v}@${e}` : v;
+  }).filter(Boolean);
+  const body = {
+    game: document.getElementById("game").value,
+    seats,
+    reveal: document.getElementById("reveal").checked,
+    condition: document.getElementById("condition").value,
+    days: document.getElementById("days").value,
+    rounds: document.getElementById("rounds").value,
+    seed: document.getElementById("seed").value,
+  };
+  const res = await fetch("/api/sessions", { method: "POST", body: JSON.stringify(body) }).then((r) => r.json());
+  const out = document.getElementById("created");
+  if (res.error) { out.innerHTML = `<div class="chip bad">${res.error}</div>`; return; }
+  const abs = (u) => location.origin + u;
+  out.innerHTML = `<h3>Game created</h3>
+    ${res.join.length ? `<p class="small">Send each human their own link (the game starts when all have joined):</p>
+    <ul class="links">${res.join.map((j) => `<li><b>${j.name}</b>: <a href="${j.url}" target="_blank">${abs(j.url)}</a></li>`).join("")}</ul>` : `<p class="small">No human seats — the game is already running.</p>`}
+    <p class="small">Observer (researcher) view: <a href="${res.observer}" target="_blank">${abs(res.observer)}</a></p>`;
+  refresh();
+};
+
+async function refresh() {
+  const list = await fetch("/api/sessions").then((r) => r.json());
+  document.getElementById("list").innerHTML = list.reverse().map((s) => `<tr>
+    <td>${s.game}<div class="mono muted small">${s.id.slice(11)}</div><div class="muted">${s.condition ?? ""}</div></td>
+    <td>${s.seats.join(", ")}<div class="muted small">${s.composition}${s.reveal ? " · revealed" : " · blind"}</div></td>
+    <td>${s.phase}${s.phase === "discuss" || s.phase === "act" ? ` · day ${s.day}` : ""}</td>
+    <td><a href="${s.observer}" target="_blank">observe</a></td></tr>`).join("") || `<tr><td colspan="4" class="muted">No games yet.</td></tr>`;
+  const past = await fetch("/api/games").then((r) => r.json());
+  document.getElementById("past").innerHTML = past.slice(0, 40).map((g) => `<tr>
+    <td>${g.game}<div class="muted small mono">${g.id.slice(5, 16).replace("T", " ")}</div></td>
+    <td>${g.composition}<div class="muted small">${g.condition ?? ""}</div></td>
+    <td><span class="chip ${g.won ? "ok" : "bad"}">${g.won ? "won" : "lost"}</span><div class="muted small">${g.result}</div></td>
+    <td>${g.replay ? `<a href="${g.replay}" target="_blank">replay</a>` : ""}</td></tr>`).join("") || `<tr><td colspan="4" class="muted">None yet. Try <span class="mono">npm run sim -- --game tethered --seats bot,bot,bot</span></td></tr>`;
+}
+init();
+</script>
+</body>
+</html>

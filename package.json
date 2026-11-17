@@ -1,0 +1,26 @@
+{
+  "name": "hybrid-game",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Mixed human + AI cooperative survival games for studying hybrid-team cooperation",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "sim": "tsx src/sim.ts",
+    "analyze": "tsx src/analyze.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.6.0",
+    "dotenv": "^18.0.9",
+    "openai": "^7.53.0",
+    "ws": "^8.22.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/ws": "^8.18.2",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

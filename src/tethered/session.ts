@@ -9,7 +9,7 @@ import { Rng } from "../game/rng.js";
 import { HumanAgent } from "../players/human.js";
 import { compositionClass, compositionKey } from "../models.js";
 import type { CallUsage, IdentityGuess, SeatKind, SeatSpec, SurveyReply } from "../types.js";
-import { createTethered, resolveRound, sanitizeAction, tDefaultConfig, tRulesText, tViewFor, type TConfig, type TState } from "./engine.js";
+import { RULES_VERSION, createTethered, resolveRound, sanitizeAction, tDefaultConfig, tRulesText, tViewFor, type TConfig, type TState } from "./engine.js";
 import { THumanAgent, TBotAgent, TLlmAgent, type TAgent, type TChat, type TCtx } from "./players.js";
 
 const CALLSIGNS = ["Alder", "Birch", "Cedar", "Dune", "Ember", "Flint", "Grove", "Heath"];
@@ -60,6 +60,7 @@ export interface TPlayerSummary {
 
 export interface TSummary {
   game: "tethered";
+  rulesVersion: number;
   sessionId: string;
   createdAt: string;
   condition: string | null;
@@ -228,6 +229,7 @@ export class TSession extends EventEmitter {
     const s = this.state;
     this.log("session_start", {
       id: this.id,
+      rulesVersion: RULES_VERSION,
       condition: this.opts.condition ?? null,
       revealIdentities: this.opts.revealIdentities,
       config: s.config,
@@ -381,6 +383,7 @@ export class TSession extends EventEmitter {
     });
     return {
       game: "tethered",
+      rulesVersion: RULES_VERSION,
       sessionId: this.id,
       createdAt: this.createdAt,
       condition: this.opts.condition ?? null,
@@ -409,6 +412,7 @@ export class TSession extends EventEmitter {
     const view = pid ? tViewFor(s, pid) : null;
     return {
       game: "tethered",
+      rulesVersion: RULES_VERSION,
       sessionId: this.id,
       observer,
       you: pid,

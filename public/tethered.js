@@ -293,6 +293,21 @@ function clearBubble(id, div) {
     if (bubbles[id]) bubbles[id] = bubbles[id].filter((b) => b.el !== div);
   }, 400);
 }
+function clearSayBubbles() {
+  for (const [id, list] of Object.entries(bubbles)) for (const b of list) if (b.kind === "say") clearBubble(id, b.el);
+}
+function shortText(text, name = "", max = 90) {
+  let t = String(text).trim();
+  // Drop a leading "Name:" / "Name here." — the bubble already shows who is talking.
+  if (name) t = t.replace(new RegExp(`^${name}( here)?\\s*[:.,!-]\\s*`, "i"), "");
+  const sentences = t.split(/(?<=[.!?])\s+/).filter(Boolean);
+  // Skip greetings and short openers so the bubble carries the actual point.
+  let s = sentences.shift() ?? "";
+  while (s.length < 30 && sentences.length) s = /^(hi|hey|ok|okay|copy|thanks|nice|great|good)\b/i.test(s) ? sentences.shift() : `${s} ${sentences.shift()}`;
+  if (s.length <= max) return s;
+  const cut = s.slice(0, max);
+  return cut.slice(0, Math.max(cut.lastIndexOf(" "), 40)).replace(/[,;:\s]+$/, "") + "…";
+}
 function clearThinking() {
   for (const [id, list] of Object.entries(bubbles)) for (const b of list) if (b.kind === "thinking") clearBubble(id, b.el);
 }
@@ -420,10 +435,13 @@ async function play(step) {
     const p = playerById(step.playerId);
     trAppend(`<div class="tr-msg"><span class="dot" style="background:${p?.color}"></span><b>${esc(nameOf(step.playerId))}</b>: ${esc(step.text)}</div>` +
       (step.note && showThoughts ? `<div class="tr-note">💭 ${esc(step.note)}</div>` : ""));
-    const ms = Math.min(6000, 1800 + step.text.length * 38);
-    bubble(step.playerId, `<b>${esc(nameOf(step.playerId))}</b>${esc(step.text)}`, ms);
-    if (step.note && showThoughts) bubble(step.playerId, `💭 ${esc(step.note.length > 140 ? step.note.slice(0, 137) + "…" : step.note)}`, ms, "thought");
-    await sleep((ms * 0.55) / speed);
+    // On the cliff: one short bubble at a time (first sentence, trimmed). The full message and
+    // the AI's thoughts stay in the radio log, which keeps the scene readable.
+    const short = shortText(step.text, nameOf(step.playerId));
+    const ms = Math.min(4500, 1600 + short.length * 40);
+    clearSayBubbles();
+    bubble(step.playerId, `<b>${esc(nameOf(step.playerId))}</b>${esc(short)}`, ms);
+    await sleep((ms * 0.6) / speed);
   } else if (step.type === "round") {
     await playRound(step);
   } else if (step.type === "end") {

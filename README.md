@@ -16,7 +16,7 @@ The whole team is tied to **one rope** and must all reach the summit before the 
 - **The rope:** neighbours on the rope can never be more than 2 tiles apart. If a move would stretch it further, the rope goes taut and the move fails. Nobody can race ahead.
 - **Each round:** everyone says one thing, then secretly picks one action: **climb** (8 directions) or **anchor** (brace the rope).
 - **Loose holds:** some holds break. You can only spot a loose hold when it's **2 tiles away**, not the one right in front of you. Because the rope keeps partners 1–2 tiles apart, your teammates are the ones who can see your next holds, so you have to warn each other.
-- **Falls:** step on a loose hold and you fall. If a rope neighbour is anchored (or standing on a ledge), they catch you. If not, you drop, drag your neighbours down, and the team takes an injury. 3 injuries and the team turns back.
+- **Falls:** step on a loose hold and you fall. A rope neighbour catches you if, after this round's moves, they are anchored or standing on a ledge, the ground or the summit. If you all climb off the ground at once, nobody is left to catch. Uncaught, you drop, drag your neighbours down, and the team takes an injury. 3 injuries and the team turns back.
 
 The co-op patterns behind it: shared fate, a visible clock, a few clear actions, support moves (anchoring), and hidden information that only teammates hold.
 

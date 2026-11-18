@@ -17,6 +17,7 @@ Testbed for studying cooperation in mixed human + AI teams. TypeScript on Node 2
 - Claude credentials: `ant auth login` works with no API key (the SDK reads and refreshes the profile); `hasAnthropicCredentials()` in `src/models.ts` checks for it.
 - Humans go through `HumanAgent.request()` over WebSocket. Each session class exposes `game`, `humanFor()`, `humans()`, `snapshotFor()`, `run()`, `progress()` so `src/server.ts` can host both games.
 - The Tethered page (`public/tethered.js`) animates from `round_resolved` frames. Live snapshots and replays (`/api/replay/:id`) feed the same step queue.
+- Changing what Tethered players read (rules text or prompt) changes results: bump `RULES_VERSION` in `src/tethered/engine.ts`. It is logged in every game and `analyze` keeps versions apart. v1 = games up to 2026-11-18 (all published results so far); v2 = clearer catching rule, simpler wording, one-sentence radio calls.
 - After changing rules, re-tune with bot sims. Targets: cooperative bots win ~45-60%, solo bots far lower. Update the baseline tables in README.
 
 ## Data

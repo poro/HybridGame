@@ -330,22 +330,32 @@ export function wallText(v: TView): string {
   return lines.join("\n");
 }
 
+/**
+ * Bump when the rules text or the prompt players see changes, so results stay comparable.
+ * v1: first rules. v2 (2026-11-18): clearer catching rule, simpler wording, one-sentence radio calls.
+ */
+export const RULES_VERSION = 2;
+
 export function tRulesText(cfg: TConfig, n: number): string {
-  return `TETHERED — cooperative roped climb
-Your team of ${n} climbers is tied together on ONE rope and must ALL reach the summit (row ${HEIGHT}) before the storm hits after round ${cfg.rounds}. Everyone wins or loses together.
+  return `TETHERED: a cooperative roped climb
+Your team of ${n} is tied to ONE rope. Everyone must reach the summit (row ${HEIGHT}) before the storm hits after round ${cfg.rounds}. You win or lose together.
 
-THE WALL: columns A-${COLS[WIDTH - 1]}, rows 1 (bottom) to ${HEIGHT} (summit). # rock holds can be climbed, = ledges are safe resting spots, . smooth slabs cannot be climbed, row 1 is the ground.
+THE WALL: columns A-${COLS[WIDTH - 1]}, rows 1 (ground) to ${HEIGHT} (summit). # rock: climbable. = ledge: safe. . slab: can't climb.
 
-THE ROPE: climbers are tied in a fixed order. Neighbours on the rope can never be more than ${ROPE} tiles apart (counting diagonals as 1). If a move would stretch the rope further, the rope goes taut and that move doesn't happen. So the team has to move together.
+THE ROPE: neighbours on the rope stay within ${ROPE} tiles of each other (diagonals count as 1). A move that would stretch it further fails.
 
 EACH ROUND
-1. Talk: each climber may send one short message.
-2. Act: everyone secretly picks ONE action at the same time:
-   - climb <N, NE, NW, E, W, S, SE, SW>: move one tile.
-   - anchor: stay put and brace the rope. Anchored climbers (and anyone standing on a ledge, the ground or the summit) catch a falling neighbour.
+1. Talk: one short radio call each.
+2. Act: everyone secretly picks one action. All actions happen at the same time.
+   - climb N, NE, NW, E, W, S, SE or SW: move one tile.
+   - anchor: stay put and brace the rope.
    - wait.
-3. Loose holds: some rock holds are loose. You can spot a loose hold only when it is exactly 2 tiles away from you — holds right next to you are too close to judge. So the holds you are about to grab are usually visible to your rope partners, not to you: warn each other. Stepping onto a loose hold breaks it (the rock underneath is solid afterwards) and you fall:
-   - If a rope neighbour is anchored or standing on safe footing, they catch you and you're back where you were.
-   - If not, you fall 2 rows, your un-anchored neighbours are dragged down 1 row, and the team takes an injury. ${cfg.maxInjuries} injuries and the expedition fails.
-Once on the summit you stay there (you can still anchor for the climbers below you).`;
+
+LOOSE HOLDS: some rock holds are loose. You can only spot one from exactly 2 tiles away, so your teammates usually see your next hold, and you see theirs. Warn each other. Step on a loose hold and it breaks (solid rock is left behind) and you fall.
+
+CATCHING: what counts is where your rope neighbours are AFTER this round's moves. A neighbour catches you if they chose anchor, or if they end the round on a ledge, the ground or the summit. If you all climb off the ground at once, nobody is left to catch.
+- Caught: you are back where you started.
+- Not caught: you drop 2 rows, neighbours who didn't anchor are dragged down 1 row, and the team takes an injury. ${cfg.maxInjuries} injuries and the team turns back.
+
+On the summit you stay put, and you can still anchor for the climbers below.`;
 }

@@ -89,7 +89,7 @@ WHO YOU ARE
 You are "${v.you.name}", climber #${v.you.ropeIndex + 1} on the rope.
 ${ctx.identityBrief}
 
-Reply with JSON only, matching the schema. Keep chat messages short and natural (1-3 sentences), like a climber shouting to the rope team. Use tile names like "C5". "memo" is one or two short sentences to remind yourself on later turns of your plan and any promises you made.`;
+Reply with JSON only, matching the schema. Keep each radio call to one short sentence (two at most, under 25 words): the thing your team most needs to hear. Use tile names like "C5". "memo" is one or two short sentences to remind yourself on later turns of your plan and any promises you made.`;
 }
 
 export function situation(ctx: TCtx, notes: string[]): string {
@@ -108,6 +108,7 @@ export function situation(ctx: TCtx, notes: string[]): string {
   lines.push("", `Loose holds you can see right now (2 tiles away): ${v.knownLoose.length ? v.knownLoose.join(", ") : "none"}. You cannot judge the holds right next to you — rely on teammates' warnings. Teammates don't see what you see unless you tell them.`);
   if (!v.you.onSummit) {
     lines.push("Your possible climbs (rope check assumes your neighbours stay where they are):");
+    lines.push("Remember: a neighbour only catches you if, after this round's moves, they are anchored or standing on a ledge, the ground or the summit.");
     for (const o of moveOptions(v)) {
       lines.push(`- ${o.dir} -> ${o.tile}: ${TERRAIN_WORD[o.terrain]}${o.ropeOk ? "" : ", rope too short unless a neighbour moves closer"}`);
     }

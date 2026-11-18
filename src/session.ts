@@ -15,6 +15,7 @@ import {
   sanitizeAction,
   viewFor,
   type Action,
+  type Difficulty,
   type OutpostConfig,
   type OutpostState,
 } from "./game/outpost.js";
@@ -29,6 +30,7 @@ const CALLSIGNS = ["Alder", "Birch", "Cedar", "Dune", "Ember", "Flint", "Grove",
 
 export interface SessionOptions {
   seats: SeatSpec[];
+  difficulty?: Difficulty;
   revealIdentities: boolean;
   seed?: number;
   game?: Partial<OutpostConfig>;
@@ -103,7 +105,7 @@ export class Session extends EventEmitter {
     if (n < 2 || n > CALLSIGNS.length) throw new Error(`Need 2-${CALLSIGNS.length} seats, got ${n}`);
     const names = this.rng.shuffle(CALLSIGNS).slice(0, n);
     this.playerIds = names.map((_, i) => `p${i + 1}`);
-    const config = { ...defaultConfig(n, seed), ...opts.game, seed };
+    const config = { ...defaultConfig(n, seed, opts.difficulty ?? "normal"), ...opts.game, seed };
     this.state = createGame(
       config,
       this.playerIds.map((id, i) => ({ id, name: names[i] })),

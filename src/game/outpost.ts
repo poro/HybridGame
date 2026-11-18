@@ -34,7 +34,10 @@ export const ROLE_INFO: Record<Role, string> = {
     "You privately see every player's food pouch. When you forage you gather +1 extra food.",
 };
 
+export type Difficulty = "normal" | "hard";
+
 export interface OutpostConfig {
+  difficulty?: Difficulty; // missing = "normal" (all games before 2026-11-18)
   days: number; // rescue deadline: if the beacon isn't built by the end of this day, the team is lost
   beaconParts: number; // parts needed to finish the beacon
   discussionRounds: number; // chat rounds per day before actions
@@ -49,15 +52,24 @@ export interface OutpostConfig {
 // roughly 45-60% of the time at every team size. Smarter teams should beat that.
 const BEACON_PARTS_BY_TEAM_SIZE: Record<number, number> = { 2: 9, 3: 19, 4: 27, 5: 38, 6: 50 }; // 5-6 not yet tuned
 
-export function defaultConfig(nPlayers: number, seed: number): OutpostConfig {
+// "normal" was tuned on scripted bots, and every Claude team was rescued every time.
+// "hard" asks for more beacon parts with less food, so rationing and sharing decide the game.
+export const DIFFICULTY: Record<Difficulty, { partsMultiplier: number; campFoodPerPlayer: number }> = {
+  normal: { partsMultiplier: 1, campFoodPerPlayer: 2 },
+  hard: { partsMultiplier: 1.5, campFoodPerPlayer: 1 },
+};
+
+export function defaultConfig(nPlayers: number, seed: number, difficulty: Difficulty = "normal"): OutpostConfig {
+  const d = DIFFICULTY[difficulty];
   return {
+    difficulty,
     days: 10,
-    beaconParts: BEACON_PARTS_BY_TEAM_SIZE[nPlayers] ?? 12 * nPlayers - 22,
+    beaconParts: Math.round((BEACON_PARTS_BY_TEAM_SIZE[nPlayers] ?? 12 * nPlayers - 22) * d.partsMultiplier),
     discussionRounds: 2,
     seed,
     startHealth: 7,
     startShelter: 6,
-    startCampFoodPerPlayer: 2,
+    startCampFoodPerPlayer: d.campFoodPerPlayer,
     startPouch: 1,
   };
 }

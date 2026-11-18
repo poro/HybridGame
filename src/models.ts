@@ -12,6 +12,34 @@ export function hasAnthropicCredentials(): boolean {
   const dir = process.env.ANTHROPIC_CONFIG_DIR ?? path.join(homedir(), ".config", "anthropic");
   return existsSync(path.join(dir, "credentials"));
 }
+/**
+ * List prices in USD per million tokens (checked 2026-11; update when prices change).
+ * Cache writes are billed at 1.25x input (5-minute cache). Haiku 5.5's cache-read price is
+ * assumed at 10% of input. OpenAI prices aren't listed here, so their cost shows as unknown.
+ */
+export const PRICES: Record<string, { input: number; output: number; cacheRead: number }> = {
+  "claude-opus-5-5": { input: 4, output: 20, cacheRead: 0.2 },
+  "claude-sonnet-5-5": { input: 2, output: 10, cacheRead: 0.2 },
+  "claude-haiku-5-5": { input: 0.1, output: 0.5, cacheRead: 0.01 },
+  "claude-fable-5-1": { input: 10, output: 50, cacheRead: 0.25 },
+};
+
+export function estimateCost(model: string, u: { inputTokens: number; outputTokens: number; cacheReadTokens?: number; cacheWriteTokens?: number }): number | null {
+  const p = PRICES[model];
+  if (!p) return null;
+  return (u.inputTokens * p.input + (u.cacheWriteTokens ?? 0) * p.input * 1.25 + (u.cacheReadTokens ?? 0) * p.cacheRead + u.outputTokens * p.output) / 1e6;
+}
+
+/** Sum call costs; null if any call's cost is unknown. */
+export function sumCost(costs: (number | null | undefined)[]): number | null {
+  let total = 0;
+  for (const c of costs) {
+    if (c === null || c === undefined) return null;
+    total += c;
+  }
+  return Math.round(total * 10000) / 10000;
+}
+
 export function hasOpenAICredentials(): boolean {
   return Boolean(process.env.OPENAI_API_KEY);
 }

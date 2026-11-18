@@ -107,6 +107,7 @@ const server = createServer(async (req, res) => {
         body.game === "outpost"
           ? new Session({
               ...common,
+              difficulty: body.difficulty === "hard" ? "hard" : "normal",
               game: { ...(body.days ? { days: Number(body.days) } : {}), ...(body.rounds ? { discussionRounds: Number(body.rounds) } : {}) },
             })
           : new TSession({

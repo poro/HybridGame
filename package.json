@@ -9,7 +9,8 @@
     "start": "tsx src/server.ts",
     "sim": "tsx src/sim.ts",
     "analyze": "tsx src/analyze.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "backup-data": "sh scripts/backup-data.sh"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.6.0",

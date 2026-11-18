@@ -8,14 +8,44 @@ import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { parseArgs } from "node:util";
 import type { GameSummary, PlayerSummary } from "./metrics.js";
+import { estimateCost } from "./models.js";
 import type { TSummary, TPlayerSummary } from "./tethered/session.js";
 
-const { values } = parseArgs({ options: { dir: { type: "string", default: "data/games" }, condition: { type: "string" } } });
+const { values } = parseArgs({
+  options: { dir: { type: "string", default: "data/games" }, condition: { type: "string" }, "include-errors": { type: "boolean", default: false } },
+});
 const dir = path.resolve(values.dir!);
-const all: (GameSummary | TSummary)[] = readdirSync(dir)
+const loaded: (GameSummary | TSummary)[] = readdirSync(dir)
   .filter((f) => f.endsWith(".summary.json"))
   .map((f) => JSON.parse(readFileSync(path.join(dir, f), "utf8")))
   .filter((g: GameSummary) => !values.condition || g.condition === values.condition);
+// Games with agent errors or timeouts are left out unless --include-errors is given.
+const errorsIn = (g: GameSummary | TSummary) => (g.players as { errors: number; timeouts: number }[]).reduce((a, p) => a + p.errors + p.timeouts, 0);
+const withErrors = loaded.filter((g) => errorsIn(g) > 0);
+const all = values["include-errors"] ? loaded : loaded.filter((g) => errorsIn(g) === 0);
+// Cost per game: exact (incl. cache tokens) where recorded; older games are estimated from
+// their token counts without cache tokens and shown with "~".
+function gameCost(g: GameSummary | TSummary): { usd: number | null; estimated: boolean } {
+  if (typeof (g as { costUsd?: number | null }).costUsd === "number") return { usd: (g as { costUsd: number }).costUsd, estimated: false };
+  let total = 0;
+  for (const p of g.players as { label: string; kind: string; inputTokens: number; outputTokens: number }[]) {
+    if (p.kind === "bot" || p.kind === "human") continue;
+    const c = estimateCost(p.label.replace(/@.*/, ""), p);
+    if (c === null) return { usd: null, estimated: true };
+    total += c;
+  }
+  return { usd: total, estimated: true };
+}
+function costText(gs: (GameSummary | TSummary)[]): string {
+  const cs = gs.map(gameCost);
+  if (cs.some((c) => c.usd === null)) return "—";
+  const avg = cs.reduce((a, c) => a + c.usd!, 0) / cs.length;
+  return `${cs.some((c) => c.estimated) ? "~" : ""}$${avg.toFixed(2)}`;
+}
+
+if (withErrors.length) {
+  console.log(`${values["include-errors"] ? "Including" : "Skipping"} ${withErrors.length} game(s) with errors or timeouts: ${withErrors.map((g) => g.sessionId).join(", ")}`);
+}
 const games = all.filter((g): g is GameSummary => !("game" in g) || (g as any).game !== "tethered");
 const climbs = all.filter((g): g is TSummary => (g as any).game === "tethered");
 
@@ -50,10 +80,10 @@ console.log(`===== OUTPOST (${games.length} games) =====\n`);
 
 console.log("TEAM OUTCOMES BY COMPOSITION");
 table(
-  ["composition", "class", "ids", "games", "rescued", "team score", "survivors"],
-  groupBy(games, (g) => `${g.compositionKey}|${g.compositionClass}|${g.revealIdentities ? "revealed" : "blind"}`).map(([k, gs]) => {
+  ["composition", "class", "ids", "games", "rescued", "team score", "survivors", "$/game"],
+  groupBy(games, (g) => `${g.compositionKey} (${g.difficulty ?? "normal"})|${g.compositionClass}|${g.revealIdentities ? "revealed" : "blind"}`).map(([k, gs]) => {
     const [key, cls, ids] = k.split("|");
-    return [key, cls, ids, gs.length, pct(mean(gs.map((g) => (g.rescued ? 1 : 0)))), num(mean(gs.map((g) => g.teamScore)), 2), num(mean(gs.map((g) => g.survivors)))];
+    return [key, cls, ids, gs.length, pct(mean(gs.map((g) => (g.rescued ? 1 : 0)))), num(mean(gs.map((g) => g.teamScore)), 2), num(mean(gs.map((g) => g.survivors))), costText(gs)];
   }),
 );
 
@@ -106,10 +136,10 @@ if (climbs.length) {
   console.log(`===== TETHERED (${climbs.length} games) =====\n`);
   console.log("TEAM OUTCOMES BY COMPOSITION");
   table(
-    ["composition", "class", "ids", "games", "summit", "climbers up", "injuries", "rounds"],
+    ["composition", "class", "ids", "games", "summit", "climbers up", "injuries", "rounds", "$/game"],
     groupBy(climbs, (g) => `${g.compositionKey} (rules v${g.rulesVersion ?? 1})|${g.compositionClass}|${g.revealIdentities ? "revealed" : "blind"}`).map(([k, gs]) => {
       const [key, cls, ids] = k.split("|");
-      return [key, cls, ids, gs.length, pct(mean(gs.map((g) => (g.won ? 1 : 0)))), pct(mean(gs.map((g) => g.summited / g.nPlayers))), num(mean(gs.map((g) => g.injuries))), num(mean(gs.map((g) => g.endRound)))];
+      return [key, cls, ids, gs.length, pct(mean(gs.map((g) => (g.won ? 1 : 0)))), pct(mean(gs.map((g) => g.summited / g.nPlayers))), num(mean(gs.map((g) => g.injuries))), num(mean(gs.map((g) => g.endRound))), costText(gs)];
     }),
   );
   const tRow = (label: string, ps: TP[]) => {

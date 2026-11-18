@@ -70,8 +70,11 @@ export interface SurveyContext {
 
 export interface CallUsage {
   model: string;
-  inputTokens: number;
+  inputTokens: number; // uncached input (Anthropic reports cache reads/writes separately)
   outputTokens: number;
+  cacheReadTokens?: number;
+  cacheWriteTokens?: number;
+  costUsd?: number | null; // list-price estimate; null when the model's price is unknown
   latencyMs: number;
 }
 

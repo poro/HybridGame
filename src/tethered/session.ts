@@ -7,7 +7,7 @@ import path from "node:path";
 import { randomBytes } from "node:crypto";
 import { Rng } from "../game/rng.js";
 import { HumanAgent } from "../players/human.js";
-import { compositionClass, compositionKey } from "../models.js";
+import { compositionClass, compositionKey, sumCost } from "../models.js";
 import type { CallUsage, IdentityGuess, SeatKind, SeatSpec, SurveyReply } from "../types.js";
 import { RULES_VERSION, createTethered, resolveRound, sanitizeAction, tDefaultConfig, tRulesText, tViewFor, type TConfig, type TState } from "./engine.js";
 import { THumanAgent, TBotAgent, TLlmAgent, type TAgent, type TChat, type TCtx } from "./players.js";
@@ -50,6 +50,9 @@ export interface TPlayerSummary {
   timeouts: number;
   errors: number;
   inputTokens: number;
+  cacheReadTokens: number;
+  cacheWriteTokens: number;
+  costUsd: number | null;
   outputTokens: number;
   avgLatencyMs: number | null;
   trustReceivedAvg: number | null;
@@ -74,6 +77,9 @@ export interface TSummary {
   injuries: number;
   endRound: number;
   outcomeReason: string;
+  errors: number; // agent errors + timeouts across all players
+  clean: boolean; // no errors or timeouts: safe to analyze
+  costUsd: number | null;
   players: TPlayerSummary[];
 }
 
@@ -339,6 +345,9 @@ export class TSession extends EventEmitter {
         timeouts: this.events.filter((e) => e.type === "timeout" && e.playerId === c.id).length,
         errors: this.events.filter((e) => e.type === "error" && e.playerId === c.id).length,
         inputTokens: 0,
+        cacheReadTokens: 0,
+        cacheWriteTokens: 0,
+        costUsd: null,
         outputTokens: 0,
         avgLatencyMs: null,
         trustReceivedAvg: null,
@@ -367,6 +376,9 @@ export class TSession extends EventEmitter {
       const u = this.usage.filter((x) => x.playerId === c.id);
       p.inputTokens = u.reduce((a, x) => a + x.inputTokens, 0);
       p.outputTokens = u.reduce((a, x) => a + x.outputTokens, 0);
+      p.cacheReadTokens = u.reduce((a, x) => a + (x.cacheReadTokens ?? 0), 0);
+      p.cacheWriteTokens = u.reduce((a, x) => a + (x.cacheWriteTokens ?? 0), 0);
+      p.costUsd = u.length ? sumCost(u.map((x) => x.costUsd)) : seat.kind === "bot" || seat.kind === "human" ? 0 : null;
       if (u.length) p.avgLatencyMs = Math.round(u.reduce((a, x) => a + x.latencyMs, 0) / u.length);
       const about = Object.entries(this.surveys)
         .filter(([r]) => r !== c.id)
@@ -397,6 +409,9 @@ export class TSession extends EventEmitter {
       injuries: o.injuries,
       endRound: o.endRound,
       outcomeReason: o.reason,
+      errors: players.reduce((a, p) => a + p.errors + p.timeouts, 0),
+      clean: players.every((p) => p.errors + p.timeouts === 0),
+      costUsd: sumCost(players.map((p) => p.costUsd)),
       players,
     };
   }

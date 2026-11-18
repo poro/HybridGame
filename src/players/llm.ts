@@ -4,6 +4,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
 import type { Action, ActionType, Site } from "../game/outpost.js";
+import { estimateCost } from "../models.js";
 import type { ActReply, Agent, CallUsage, DiscussReply, SeatSpec, SurveyContext, SurveyReply, TurnContext } from "../types.js";
 import {
   actInstruction,
@@ -144,7 +145,17 @@ export async function claudeJson(seat: SeatSpec, system: string, user: string, s
   return {
     json: JSON.parse(text),
     thinking: thinking || undefined,
-    usage: { model: res.model, inputTokens: res.usage.input_tokens, outputTokens: res.usage.output_tokens, latencyMs: Date.now() - t0 },
+    usage: (() => {
+      const u = {
+        model: res.model,
+        inputTokens: res.usage.input_tokens,
+        outputTokens: res.usage.output_tokens,
+        cacheReadTokens: res.usage.cache_read_input_tokens ?? 0,
+        cacheWriteTokens: res.usage.cache_creation_input_tokens ?? 0,
+        latencyMs: Date.now() - t0,
+      };
+      return { ...u, costUsd: estimateCost(u.model, u) };
+    })(),
   };
 }
 
@@ -163,7 +174,15 @@ export async function openaiJson(seat: SeatSpec, system: string, user: string, s
   });
   return {
     json: JSON.parse(res.output_text),
-    usage: { model: res.model, inputTokens: res.usage?.input_tokens ?? 0, outputTokens: res.usage?.output_tokens ?? 0, latencyMs: Date.now() - t0 },
+    usage: {
+      model: res.model,
+      // OpenAI counts cached tokens inside input_tokens.
+      inputTokens: res.usage?.input_tokens ?? 0,
+      outputTokens: res.usage?.output_tokens ?? 0,
+      cacheReadTokens: res.usage?.input_tokens_details?.cached_tokens ?? 0,
+      costUsd: null,
+      latencyMs: Date.now() - t0,
+    },
   };
 }
 

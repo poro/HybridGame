@@ -1,4 +1,5 @@
 node_modules/
 .env
-data/games/
-data/*.csv
+# Game logs and exported CSVs live in their own private repo (poro/HybridGame-data),
+# cloned into data/. See data/README.md and `npm run backup-data`.
+data/

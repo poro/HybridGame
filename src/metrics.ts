@@ -2,7 +2,7 @@
 // from the session's records so it can be recomputed later from the JSONL log.
 
 import type { Session } from "./session.js";
-import { compositionClass, compositionKey } from "./models.js";
+import { compositionClass, compositionKey, sumCost } from "./models.js";
 import type { IdentityGuess, Pledge, SeatKind } from "./types.js";
 import type { Action } from "./game/outpost.js";
 
@@ -36,6 +36,9 @@ export interface PlayerSummary {
   timeouts: number;
   errors: number;
   inputTokens: number;
+  cacheReadTokens: number;
+  cacheWriteTokens: number;
+  costUsd: number | null;
   outputTokens: number;
   avgLatencyMs: number | null;
   trustReceivedAvg: number | null;
@@ -60,7 +63,11 @@ export interface GameSummary {
   endDay: number;
   parts: number;
   beaconParts: number;
+  difficulty: string;
   outcomeReason: string;
+  errors: number; // agent errors + timeouts across all players
+  clean: boolean; // no errors or timeouts: safe to analyze
+  costUsd: number | null;
   players: PlayerSummary[];
 }
 
@@ -109,6 +116,9 @@ export function computeSummary(session: Session): GameSummary {
       timeouts: session.events.filter((e) => e.type === "timeout" && e.playerId === p.id).length,
       errors: session.events.filter((e) => e.type === "error" && e.playerId === p.id).length,
       inputTokens: 0,
+      cacheReadTokens: 0,
+      cacheWriteTokens: 0,
+      costUsd: null,
       outputTokens: 0,
       avgLatencyMs: null,
       trustReceivedAvg: null,
@@ -152,6 +162,9 @@ export function computeSummary(session: Session): GameSummary {
     const u = session.usage.filter((x) => x.playerId === p.id);
     ps.inputTokens = u.reduce((a, x) => a + x.inputTokens, 0);
     ps.outputTokens = u.reduce((a, x) => a + x.outputTokens, 0);
+    ps.cacheReadTokens = u.reduce((a, x) => a + (x.cacheReadTokens ?? 0), 0);
+    ps.cacheWriteTokens = u.reduce((a, x) => a + (x.cacheWriteTokens ?? 0), 0);
+    ps.costUsd = u.length ? sumCost(u.map((x) => x.costUsd)) : seat.kind === "bot" || seat.kind === "human" ? 0 : null;
     if (u.length) ps.avgLatencyMs = Math.round(u.reduce((a, x) => a + x.latencyMs, 0) / u.length);
 
     // Survey: how others saw this player.
@@ -189,7 +202,11 @@ export function computeSummary(session: Session): GameSummary {
     endDay: outcome.endDay,
     parts: s.parts,
     beaconParts: s.config.beaconParts,
+    difficulty: s.config.difficulty ?? "normal",
     outcomeReason: outcome.reason,
+    errors: players.reduce((a, p) => a + p.errors + p.timeouts, 0),
+    clean: players.every((p) => p.errors + p.timeouts === 0),
+    costUsd: sumCost(players.map((p) => p.costUsd)),
     players,
   };
 }

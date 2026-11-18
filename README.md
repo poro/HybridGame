@@ -70,7 +70,11 @@ Flags: `--days` (Outpost days / Tethered rounds), `--rounds` (chat rounds per tu
 
 ## Data
 
-Each game writes to `data/games/` (gitignored, since it contains participant chat):
+Each game writes to `data/games/`. The `data/` folder is its own private repository, [poro/HybridGame-data](https://github.com/poro/HybridGame-data), ignored by this repo because it contains every player's chat. Run `npm run backup-data` after playing games to push new logs.
+
+Games that hit errors or timeouts (for example when the computer sleeps mid-game) are set aside in `data/games/excluded/` and their seed is replayed automatically (`--retries`, default 1). `npm run analyze` skips any game with errors unless you pass `--include-errors`. Each summary records exact token use, including cached tokens, and its cost at list prices.
+
+Outpost has two difficulties: `normal` (tuned on bots; every Claude team is rescued every time) and `hard` (50% more beacon parts, half the starting food). Pick it in the lobby or with `--difficulty hard`.
 
 - `<id>.jsonl`: every event: chat with private notes, raw and sanitized actions, latencies, token usage, round results (including animation frames), timeouts/errors, surveys.
 - `<id>.summary.json`: the outcome plus cooperation metrics for each player.

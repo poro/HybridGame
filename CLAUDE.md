@@ -21,6 +21,8 @@ Testbed for studying cooperation in mixed human + AI teams. TypeScript on Node 2
 - After changing rules, re-tune with bot sims. Targets: cooperative bots win ~45-60%, solo bots far lower. Update the baseline tables in README.
 
 ## Data
-- `data/games/` is gitignored and holds participant data (chat, debrief reflections). Never commit it or send it anywhere.
+- `data/` is a separate private repo (poro/HybridGame-data) holding participant data (chat, debrief reflections). This repo ignores it; never commit it here or send it anywhere else. `npm run backup-data` commits and pushes it.
+- Games with errors/timeouts are set aside in `data/games/excluded/` by the simulator (seed replayed) and skipped by `analyze`. Summaries carry `clean`, `errors` and `costUsd` (list prices in `PRICES`, `src/models.ts`).
+- Outpost `difficulty` ("normal" | "hard") is part of each game's config and summary; never mix difficulties when comparing.
 - `.env` holds API keys. Never commit it.
 - The lobby, observer and replay APIs are served only to localhost (`isLocal` in server.ts). Keep it that way.

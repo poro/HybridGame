@@ -137,7 +137,7 @@ if (climbs.length) {
   console.log("TEAM OUTCOMES BY COMPOSITION");
   table(
     ["composition", "class", "ids", "games", "summit", "climbers up", "injuries", "rounds", "$/game"],
-    groupBy(climbs, (g) => `${g.compositionKey} (rules v${g.rulesVersion ?? 1})|${g.compositionClass}|${g.revealIdentities ? "revealed" : "blind"}`).map(([k, gs]) => {
+    groupBy(climbs, (g) => `${g.compositionKey} (rules ${g.variant ?? `v${g.rulesVersion ?? 1}`})|${g.compositionClass}|${g.revealIdentities ? "revealed" : "blind"}`).map(([k, gs]) => {
       const [key, cls, ids] = k.split("|");
       return [key, cls, ids, gs.length, pct(mean(gs.map((g) => (g.won ? 1 : 0)))), pct(mean(gs.map((g) => g.summited / g.nPlayers))), num(mean(gs.map((g) => g.injuries))), num(mean(gs.map((g) => g.endRound))), costText(gs)];
     }),
@@ -163,7 +163,7 @@ if (climbs.length) {
   };
   const TH = ["player", "n", "climb", "anchor", "anchors that helped", "warned", "catches", "falls", "taut/game", "msgs/round", "trust rcvd", "seen as AI", "timeouts+errs"];
   console.log("CLIMBER BEHAVIOUR BY SEAT TYPE");
-  table(TH, groupBy(tPlayers, (p) => `${p.kind === "human" ? "human" : p.label} (rules v${p.game.rulesVersion ?? 1})`).map(([k, ps]) => tRow(k, ps)));
+  table(TH, groupBy(tPlayers, (p) => `${p.kind === "human" ? "human" : p.label} (rules ${p.game.variant ?? `v${p.game.rulesVersion ?? 1}`})`).map(([k, ps]) => tRow(k, ps)));
   console.log("CLIMBER BEHAVIOUR BY SEAT TYPE × TEAM CLASS");
   table(TH, groupBy(tPlayers, (p) => `${p.kind === "human" ? "human" : p.label} in ${p.game.compositionClass}`).map(([k, ps]) => tRow(k, ps)));
 }

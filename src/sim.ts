@@ -17,6 +17,8 @@ const { values } = parseArgs({
   options: {
     game: { type: "string", default: "outpost" },
     difficulty: { type: "string", default: "normal" }, // Outpost: normal | hard
+    rules: { type: "string" }, // Tethered rules text: v1 | v2 (default v2)
+    radio: { type: "string" }, // Tethered radio calls: long | short (default short)
     seats: { type: "string", default: "bot,bot,bot" },
     games: { type: "string", default: "1" },
     reveal: { type: "boolean", default: false },
@@ -60,7 +62,12 @@ async function playTethered(i: number) {
     seed: baseSeed + i,
     condition: values.condition,
     dataDir: values.out,
-    game: { ...(values.days ? { rounds: Number(values.days) } : {}), ...(values.rounds ? { chatRounds: Number(values.rounds) } : {}) },
+    game: {
+      ...(values.days ? { rounds: Number(values.days) } : {}),
+      ...(values.rounds ? { chatRounds: Number(values.rounds) } : {}),
+      ...(values.rules ? { rulesText: values.rules as "v1" | "v2" } : {}),
+      ...(values.radio ? { radio: values.radio as "long" | "short" } : {}),
+    },
   });
   if (!values.quiet) {
     let seen = 0;

@@ -9,7 +9,7 @@ import { Rng } from "../game/rng.js";
 import { HumanAgent } from "../players/human.js";
 import { compositionClass, compositionKey, sumCost } from "../models.js";
 import type { CallUsage, IdentityGuess, SeatKind, SeatSpec, SurveyReply } from "../types.js";
-import { RULES_VERSION, createTethered, resolveRound, sanitizeAction, tDefaultConfig, tRulesText, tViewFor, type TConfig, type TState } from "./engine.js";
+import { RULES_VERSION, createTethered, rulesVariant, resolveRound, sanitizeAction, tDefaultConfig, tRulesText, tViewFor, type TConfig, type TState } from "./engine.js";
 import { THumanAgent, TBotAgent, TLlmAgent, type TAgent, type TChat, type TCtx } from "./players.js";
 
 const CALLSIGNS = ["Alder", "Birch", "Cedar", "Dune", "Ember", "Flint", "Grove", "Heath"];
@@ -64,6 +64,7 @@ export interface TPlayerSummary {
 export interface TSummary {
   game: "tethered";
   rulesVersion: number;
+  variant: string; // "v1", "v2", "v2-rules-only" or "v2-radio-only"
   sessionId: string;
   createdAt: string;
   condition: string | null;
@@ -218,6 +219,8 @@ export class TSession extends EventEmitter {
       narrative: this.state.history.map((h) => ({ round: h.round, lines: h.narrative })),
       chatRound,
       chatRounds: this.state.config.chatRounds,
+      radio: this.state.config.radio ?? "short",
+      catchReminder: (this.state.config.rulesText ?? "v2") === "v2",
       deadlineMs,
     };
   }
@@ -236,6 +239,7 @@ export class TSession extends EventEmitter {
     this.log("session_start", {
       id: this.id,
       rulesVersion: RULES_VERSION,
+      variant: rulesVariant(s.config),
       condition: this.opts.condition ?? null,
       revealIdentities: this.opts.revealIdentities,
       config: s.config,
@@ -396,6 +400,7 @@ export class TSession extends EventEmitter {
     return {
       game: "tethered",
       rulesVersion: RULES_VERSION,
+      variant: rulesVariant(s.config),
       sessionId: this.id,
       createdAt: this.createdAt,
       condition: this.opts.condition ?? null,

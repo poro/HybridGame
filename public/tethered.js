@@ -745,6 +745,7 @@ function renderLiveUi() {
   const me = s.climbers.find((c) => c.id === s.you);
   const you = $("you");
   you.style.display = "";
+  $("howto").style.display = "";
   you.innerHTML = `<b>You are ${esc(me.name)}</b>, climber #${me.ropeIndex + 1} on the rope, at ${tileName(me.x, me.y)}.
     <div class="small muted" style="margin-top:4px">${esc(s.identityBrief)}</div>
     <div class="small" style="margin-top:4px">Loose holds you can see (2 tiles away): <b>${s.loose.length ? s.loose.join(", ") : "none"}</b>. You can't judge the holds right next to you — listen to your team.</div>`;

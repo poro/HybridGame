@@ -41,6 +41,7 @@
           <label><span id="daysLabel">Rounds</span> <input id="days" type="number" min="3" max="40" placeholder="default" style="width:80px" /></label>
           <label>Chat rounds/day <input id="rounds" type="number" min="1" max="5" placeholder="default" style="width:80px" /></label>
           <label>Seed <input id="seed" type="number" placeholder="random" style="width:110px" /></label>
+          <label>Seconds per turn (people) <input id="turnSec" type="number" min="30" max="600" value="120" style="width:80px" /></label>
         </div>
         <button class="primary" id="create">Create game</button>
         <div id="created" style="margin-top:14px"></div>
@@ -116,6 +117,7 @@ document.getElementById("create").onclick = async () => {
     days: document.getElementById("days").value,
     rounds: document.getElementById("rounds").value,
     seed: document.getElementById("seed").value,
+    turnSec: document.getElementById("turnSec").value,
   };
   const res = await fetch("/api/sessions", { method: "POST", body: JSON.stringify(body) }).then((r) => r.json());
   const out = document.getElementById("created");

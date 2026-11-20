@@ -103,15 +103,19 @@ const server = createServer(async (req, res) => {
       const body = await readBody(req);
       const seats = (body.seats as string[]).map(parseSeat);
       const common = { seats, revealIdentities: Boolean(body.reveal), condition: body.condition || undefined, seed: body.seed ? Number(body.seed) : undefined };
+      // Seconds a person gets per talk/act step (AI seats keep their own limit).
+      const turnSec = Math.min(600, Math.max(30, Number(body.turnSec) || 120));
       const session: AnySession =
         body.game === "outpost"
           ? new Session({
               ...common,
+              timeouts: { humanDiscussSec: turnSec, humanActSec: turnSec },
               difficulty: body.difficulty === "hard" ? "hard" : "normal",
               game: { ...(body.days ? { days: Number(body.days) } : {}), ...(body.rounds ? { discussionRounds: Number(body.rounds) } : {}) },
             })
           : new TSession({
               ...common,
+              timeouts: { humanTalkSec: turnSec, humanActSec: turnSec },
               game: { ...(body.days ? { rounds: Number(body.days) } : {}), ...(body.rounds ? { chatRounds: Number(body.rounds) } : {}) },
             });
       sessions.set(session.id, session);

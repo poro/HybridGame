@@ -45,6 +45,8 @@ npm run dev             # http://localhost:8787
 
 Remote players: run `HOST=0.0.0.0 npm start` and share links that use your machine's IP. Only the game pages are reachable from other machines; the lobby, observer and replay APIs answer only on the host. Use `npm start` (not `dev`) for real sessions: dev mode restarts the server when files change, which drops live games.
 
+Playing in person on this Mac: double-click `Game Night.command` (starts `npm start` with the Mac kept awake and opens the lobby). The lobby's "Seconds per turn (people)" sets how long human players get per step (default 120). See [docs/GAME_NIGHT.md](docs/GAME_NIGHT.md).
+
 ## Seat types
 
 | Seat | Meaning |

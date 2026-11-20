@@ -39,9 +39,12 @@ Target **40 participants** (10 per cell). Haiku's effect was very large (+30 poi
 - The person times out on more than 25% of their steps.
 - The person has played Tethered before.
 
-## AI-only control to run first
+## AI-only control (done 2026-11-20)
 
-Haiku + 2 scripted cooperative bots on the same 16 seeds. If Haiku's climb share rises there too, the teammate effect is a reaction to teammates' behaviour (warnings and anchors), not to who the teammates are. That changes how H1 should be read.
+Haiku + 2 scripted cooperative bots on the same 16 seeds (condition `haiku-bot-control`). The bots warn and anchor but never give an all-clear. Haiku climbed on 16% of its turns (vs 34% with Haikus, 64% with Opus and Sonnet) and the team never summited. Haiku's climbing tracks teammates' explicit all-clears, so for people:
+
+- **Exploratory measure E1:** the share of the person's messages that give an all-clear (keyword count, as in `scripts/stats.py`), and how it relates to the AI teammates' climb share.
+- **Still to run before registering:** a bot that calls visible holds solid, to separate the all-clear from responsiveness in general.
 
 ## Ethics and data
 

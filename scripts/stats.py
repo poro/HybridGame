@@ -65,3 +65,38 @@ gm = [s for s in op if team(s) == "mixed"]; gh = [s for s in op if team(s) == "h
 km = sum(1 for s in gm if s.get("won") or s.get("rescued")); kh = sum(1 for s in gh if s.get("won") or s.get("rescued"))
 print("Fisher p =", f"{fisher(km, len(gm), kh, len(gh)):.2g}")
 
+
+print("== Control: Haiku + 2 cooperative bots (v1, condition haiku-bot-control) ==")
+ctl = [json.load(open(f)) for f in glob.glob(G + "/*.summary.json")]
+ctl = [s for s in ctl if s.get("condition") == "haiku-bot-control" and s.get("clean", True)]
+if ctl:
+    xc = [hshare(s) for s in ctl]
+    print(f"Haiku with bots {sum(xc)/len(xc):.0%} (n={len(xc)}), summits {sum(s['won'] for s in ctl)}/{len(ctl)}")
+    for name, ref in [("all-Haiku", xa), ("Haiku in mixed", xm)]:
+        lo, hi = boot(ref, xc)
+        print(f"  vs {name}: {sum(xc)/len(xc)-sum(ref)/len(ref):+.0%} (95% CI {lo:+.0%} to {hi:+.0%}), permutation p = {perm(ref, xc):.2g}")
+
+# All-clear calls by teammates vs Haiku's requests for confirmation (keyword heuristic on chat text).
+import re
+ALLCLEAR = re.compile(r"\b(solid|is safe|looks? (fine|good|safe)|go ahead|clear|not loose)\b", re.I)
+ASK = re.compile(r"\?|please call|loose or solid", re.I)
+def chat_stats(summaries, is_teammate):
+    say = n_say = ask = n_ask = 0
+    for s in summaries:
+        f = G + "/" + s["sessionId"] + ".jsonl"
+        L = [json.loads(l) for l in open(f)]
+        st = next(e for e in L if e["type"] == "session_start")
+        lab = {p["id"]: p["seat"].get("model") or p["seat"]["label"] for p in st["players"]}
+        for e in L:
+            if e["type"] != "chat": continue
+            t = e.get("text") or ""; w = lab.get(e.get("playerId"))
+            if is_teammate(w): n_say += 1; say += bool(ALLCLEAR.search(t))
+            if w == "claude-haiku-5-5": n_ask += 1; ask += bool(ASK.search(t))
+    return say, n_say, ask, n_ask
+print("== Chat: teammates' all-clear calls and Haiku's questions (v1) ==")
+for name, gs, who in [("Haiku + 2 bots", ctl, lambda w: bool(w) and w.startswith("bot")),
+                      ("all-Haiku", g1h, lambda w: w == "claude-haiku-5-5"),
+                      ("Haiku + Opus + Sonnet", g1m, lambda w: w in ("claude-opus-5-5", "claude-sonnet-5-5"))]:
+    if not gs: continue
+    a, na, q, nq = chat_stats(gs, who)
+    print(f"{name:22} all-clear {a}/{na} ({a/na:.0%})   Haiku asks {q}/{nq} ({q/nq:.0%})")

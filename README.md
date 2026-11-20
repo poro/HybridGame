@@ -11,19 +11,20 @@ There are two games:
 
 ## Findings so far (AI-only games)
 
-154 error-free, blind games with Claude Opus, Sonnet and Haiku 5.5 (16 of them a control: Haiku with two scripted bots) (no human has finished a game yet, and OpenAI models haven't played). Small samples: treat these as hypotheses for the human games.
+170 error-free, blind games with Claude Opus, Sonnet and Haiku 5.5 (32 of them controls: Haiku with two scripted bots) (no human has finished a game yet, and OpenAI models haven't played). Small samples: treat these as hypotheses for the human games.
 
 | What we saw | Why it matters for AI teammates |
 |---|---|
 | The same model plays differently with different teammates: Haiku climbed on 34% of its turns with other Haikus, 64% with Opus and Sonnet (+30 points, 95% CI 26 to 34, permutation p < 0.001). | Testing a model alone can miss how it behaves on a team. |
 | **Control:** next to two scripted bots that warn about every loose hold and anchor reliably but never say a hold is safe, Haiku climbed on only 16% of its turns (0 of 16 summits). Haiku's climbing tracks its teammates' explicit all-clears: 0% of the bots' messages, 49% from other Haikus, 76% from Opus and Sonnet (keyword count). | Rules out "stronger teammates just make climbing safer". A model can stall next to teammates, human or AI, who only report problems. |
+| **Second control:** the same bots (identical moves, checked over 200 bot-only games) plus one sentence calling the holds they can judge solid (`bot:allclear`). Haiku's climbing rose from 16% to 41% (+25 points, 95% CI 18 to 32, p < 0.001); its questions fell from 32% to 10% of its messages. | Explicit all-clears **cause** about half of Haiku's teammate effect. The rest (41% → 64% with Opus and Sonnet) is still unexplained. |
 | Team mix decides the outcome: Opus + Sonnet + Haiku summited 16 of 16 games, three Haikus 0 of 16, on the same cliffs (paired sign test, p < 0.001). | Who a model is paired with matters as much as the model. |
 | Teams failed mostly by being too careful (465 of 508 loose holds called out), not by being reckless. | Caution is the default. Open question: does it hold next to people who take risks? |
 | Two small wording changes, harmless alone, together cost the mixed team 3 of 6 summits (Fisher p = 0.18: a hint, not an effect). | If it holds up, multi-agent behaviour is sensitive to instructions; test changes one at a time. |
 | In blind debriefs, Haiku flagged an AI teammate in 2 of 64 guesses; Sonnet identified its AI teammates in 23 of 32 games. | Bears on disclosure: will people know when a teammate is an AI? |
 | Asking models to write out their reasoning in a field was declined by Anthropic's reasoning-extraction safeguard. | The design now uses a short memo plus the API's summarized thinking: it works with the safeguards, not around them. |
 
-**Limits:** all games so far are AI-only, Claude-only, blind and exploratory (not preregistered). The bot control ruled out the "safer climbing" explanation for Haiku's teammate effect, but can't yet separate the all-clear itself from responsive chat in general (the bots never answer or plan); a bot that calls visible holds solid would. Tests: `python3 scripts/stats.py data/games`.
+**Limits:** all games so far are AI-only, Claude-only, blind and exploratory (not preregistered). Two bot controls ruled out the "safer climbing" explanation and showed that explicit all-clears cause about half of Haiku's teammate effect; what drives the rest (answers, shared plans?) is open. Tests: `python3 scripts/stats.py data/games`.
 
 **Next study:** one person + two AI teammates, 2 × 2 (strong or weak AI teammates; blind or revealed), with hypotheses, tests and exclusions written down first in [docs/PREREGISTRATION.md](docs/PREREGISTRATION.md).
 
@@ -77,7 +78,7 @@ Playing in person on this Mac: double-click `Game Night.command` (starts `npm st
 | `opus` / `sonnet` / `haiku` / `fable` | `claude-opus-5-5` / `claude-sonnet-5-5` / `claude-haiku-5-5` / `claude-fable-5-1` |
 | `luna` | OpenAI model set by `OPENAI_LUNA_MODEL` in `.env` |
 | `anthropic:<id>` / `openai:<id>` | Any other model id |
-| `bot`, `bot:selfish`, `bot:random` | Scripted baselines (no API cost). In Tethered, `bot:selfish` is a solo climber. |
+| `bot`, `bot:allclear`, `bot:selfish`, `bot:random` | Scripted baselines (no API cost). In Tethered, `bot:selfish` is a solo climber, and `bot:allclear` is the cooperative bot plus "X is solid" calls for holds it can judge (same moves). |
 | `…@low` / `@high` / … | Reasoning effort for model seats, e.g. `opus@low` |
 
 ## AI-only runs

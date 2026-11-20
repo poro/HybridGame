@@ -233,7 +233,9 @@ export class TBotAgent implements TAgent {
     // Loose holds teammates have warned about in chat this round or last.
     return ctx.chat
       .filter((m) => m.round >= ctx.view.round - 1 && /loose/i.test(m.text))
-      .flatMap((m) => m.text.toUpperCase().match(/\b[A-G]\d{1,2}\b/g) ?? []);
+      // Drop an "allclear" bot's "X and Y are solid." sentence so its tiles aren't read as warnings.
+      .map((m) => m.text.replace(/\b[A-G]\d{1,2}(?: and [A-G]\d{1,2})* (?:is|are) solid\./g, ""))
+      .flatMap((t) => t.toUpperCase().match(/\b[A-G]\d{1,2}\b/g) ?? []);
   }
 
   private bestClimb(ctx: TCtx, respectRope: boolean, avoid: string[]): Dir | null {
@@ -277,6 +279,22 @@ export class TBotAgent implements TAgent {
       return mates.some((m) => !m.onSummit && dist(m, p) <= 1);
     });
     if (relevant.length) parts.push(`Careful, ${relevant.join(" and ")} ${relevant.length > 1 ? "are" : "is"} loose.`);
+    // "allclear" bots also confirm solid holds they can judge (exactly 2 tiles away) next to or above a teammate.
+    // Otherwise identical to "cooperative": a control for whether explicit all-clears change teammates' pace.
+    if (this.persona === "allclear") {
+      const solid = new Set<string>();
+      for (const m of mates.filter((c) => !c.onSummit)) {
+        for (let dy = 0; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+          const x = m.x + dx, y = m.y + dy;
+          if ((dx === 0 && dy === 0) || x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT) continue;
+          const t = v.terrain[y][x];
+          if (!climbable(t) || safeFooting(t) || dist(v.you, { x, y }) !== 2) continue;
+          if (!v.knownLoose.includes(tileName(x, y))) solid.add(tileName(x, y));
+        }
+      }
+      const list = [...solid].sort().slice(0, 3);
+      if (list.length) parts.push(`${list.join(" and ")} ${list.length > 1 ? "are" : "is"} solid.`);
+    }
     const a = this.plan(ctx);
     parts.push(v.you.onSummit ? "On top — anchoring for you." : a.type === "climb" ? `I'll climb ${a.dir}.` : "I'll anchor.");
     return { message: parts.join(" ") };

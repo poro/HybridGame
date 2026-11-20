@@ -1,7 +1,7 @@
 import type { Action, ActionType, PlayerView, Site } from "./game/outpost.js";
 
 export type SeatKind = "human" | "anthropic" | "openai" | "bot";
-export type BotPersona = "cooperative" | "selfish" | "random";
+export type BotPersona = "cooperative" | "allclear" | "selfish" | "random";
 export type Effort = "low" | "medium" | "high" | "xhigh" | "max";
 
 /** One seat at the table. `label` is the experimenter-facing description, e.g. "claude-opus-5-5". */

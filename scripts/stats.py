@@ -66,15 +66,25 @@ km = sum(1 for s in gm if s.get("won") or s.get("rescued")); kh = sum(1 for s in
 print("Fisher p =", f"{fisher(km, len(gm), kh, len(gh)):.2g}")
 
 
-print("== Control: Haiku + 2 cooperative bots (v1, condition haiku-bot-control) ==")
-ctl = [json.load(open(f)) for f in glob.glob(G + "/*.summary.json")]
-ctl = [s for s in ctl if s.get("condition") == "haiku-bot-control" and s.get("clean", True)]
-if ctl:
-    xc = [hshare(s) for s in ctl]
-    print(f"Haiku with bots {sum(xc)/len(xc):.0%} (n={len(xc)}), summits {sum(s['won'] for s in ctl)}/{len(ctl)}")
+CONTROLS = [("haiku-bot-control", "Haiku + 2 cooperative bots (warn only)"),
+            ("haiku-allclear-control", "Haiku + 2 all-clear bots (warn + say solid)")]
+allsum = [json.load(open(f)) for f in glob.glob(G + "/*.summary.json")]
+ctl_by = {c: [s for s in allsum if s.get("condition") == c and s.get("clean", True)] for c, _ in CONTROLS}
+ctl = ctl_by["haiku-bot-control"]
+xs_by = {}
+for c, title in CONTROLS:
+    gs = ctl_by[c]
+    if not gs: continue
+    xc = [hshare(s) for s in gs]; xs_by[c] = xc
+    print(f"== Control: {title}, v1 ==")
+    print(f"Haiku climbs {sum(xc)/len(xc):.0%} (n={len(xc)}), summits {sum(s['won'] for s in gs)}/{len(gs)}")
     for name, ref in [("all-Haiku", xa), ("Haiku in mixed", xm)]:
         lo, hi = boot(ref, xc)
         print(f"  vs {name}: {sum(xc)/len(xc)-sum(ref)/len(ref):+.0%} (95% CI {lo:+.0%} to {hi:+.0%}), permutation p = {perm(ref, xc):.2g}")
+if len(xs_by) == 2:
+    a, b = xs_by["haiku-bot-control"], xs_by["haiku-allclear-control"]
+    lo, hi = boot(a, b)
+    print(f"  all-clear bots vs warn-only bots: {sum(b)/len(b)-sum(a)/len(a):+.0%} (95% CI {lo:+.0%} to {hi:+.0%}), permutation p = {perm(a, b):.2g}")
 
 # All-clear calls by teammates vs Haiku's requests for confirmation (keyword heuristic on chat text).
 import re
@@ -95,6 +105,7 @@ def chat_stats(summaries, is_teammate):
     return say, n_say, ask, n_ask
 print("== Chat: teammates' all-clear calls and Haiku's questions (v1) ==")
 for name, gs, who in [("Haiku + 2 bots", ctl, lambda w: bool(w) and w.startswith("bot")),
+                      ("Haiku + 2 all-clear bots", ctl_by["haiku-allclear-control"], lambda w: bool(w) and w.startswith("bot")),
                       ("all-Haiku", g1h, lambda w: w == "claude-haiku-5-5"),
                       ("Haiku + Opus + Sonnet", g1m, lambda w: w in ("claude-opus-5-5", "claude-sonnet-5-5"))]:
     if not gs: continue

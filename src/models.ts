@@ -56,6 +56,7 @@ export const ALIASES: Record<string, Omit<SeatSpec, "label"> & { label?: string 
   luna: { kind: "openai", model: process.env.OPENAI_LUNA_MODEL || "luna" },
   bot: { kind: "bot", persona: "cooperative" },
   "bot:cooperative": { kind: "bot", persona: "cooperative" },
+  "bot:allclear": { kind: "bot", persona: "allclear" }, // cooperative + calls visible solid holds solid
   "bot:selfish": { kind: "bot", persona: "selfish" },
   "bot:random": { kind: "bot", persona: "random" },
 };

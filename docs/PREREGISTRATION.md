@@ -44,7 +44,8 @@ Target **40 participants** (10 per cell). Haiku's effect was very large (+30 poi
 Haiku + 2 scripted cooperative bots on the same 16 seeds (condition `haiku-bot-control`). The bots warn and anchor but never give an all-clear. Haiku climbed on 16% of its turns (vs 34% with Haikus, 64% with Opus and Sonnet) and the team never summited. Haiku's climbing tracks teammates' explicit all-clears, so for people:
 
 - **Exploratory measure E1:** the share of the person's messages that give an all-clear (keyword count, as in `scripts/stats.py`), and how it relates to the AI teammates' climb share.
-- **Still to run before registering:** a bot that calls visible holds solid, to separate the all-clear from responsiveness in general.
+- **Second control (done 2026-11-20):** the same bots plus an all-clear sentence (`bot:allclear`, condition `haiku-allclear-control`). Haiku's climbing rose from 16% to 41% (+25 points, 95% CI 18 to 32, p < 0.001). Explicit all-clears cause about half of the teammate effect.
+- **Exploratory measure E2:** the AI teammates' all-clear rate to the person, as a possible mediator of H1 (strong teammates gave all-clears in 76% of messages, Haikus in 49%).
 
 ## Ethics and data
 

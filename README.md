@@ -30,6 +30,8 @@ There are two games:
 
 **How results are kept honest:** teams are compared on the same seeded maps; rule versions are logged and never mixed; games with any error or timeout are set aside and replayed; costs are recorded exactly; scripted-bot results are always labelled as such. Three conclusions have been corrected openly as more data came in.
 
+**Slide deck:** [docs/HybridGame-deck.pdf](docs/HybridGame-deck.pdf) (31 slides, exported 2026-11-20): the games, the AI-only results, the controls, limits and the planned human study.
+
 **How it was built:** the code was written with [Claude Code](https://claude.com/claude-code) (Claude Opus 5.5), with the author directing the project and reviewing the results. The AI players are Claude models called through the Anthropic API.
 
 ## Tethered: the rope game

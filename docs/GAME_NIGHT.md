@@ -5,13 +5,13 @@ An informal pilot: one person plays Tethered with two AI teammates. It's not a f
 ## Before anyone plays
 - Ask each person if they're OK with their chat and answers being saved. The data stays private (in poro/HybridGame-data, never shared).
 - Close other apps. The Mac stays awake while the game runs.
-- Check credit: each game with Opus costs about $1 to $1.50.
+- Check credit: a game with Opus and Sonnet costs about $1.40; with two Haikus about $0.10.
 
 ## Start
 1. Double-click **Game Night.command** in the HybridGame folder. A Terminal window opens, then the lobby at http://localhost:8787. Leave the Terminal window open.
 2. In the lobby:
    - Game: **Tethered**
-   - Seats: `human`, `opus`, `haiku`
+   - Seats: alternate between `human`, `opus`, `sonnet` and `human`, `haiku`, `haiku` (the two teammate groups of the planned study, see PREREGISTRATION.md). Change the order so the person isn't always first on the rope.
    - Leave "reveal identities" **off** (blind, like all games so far)
    - Condition label: `family-pilot`
    - Seconds per turn (people): **120** (lower to 90 for quick players, raise for kids)

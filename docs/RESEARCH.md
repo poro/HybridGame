@@ -41,6 +41,10 @@ Use `condition` / `--condition` to tag each run; `npm run analyze -- --condition
 
 **Process data in every JSONL log:** full chat, the AIs' private notes (their stated reasoning, plans and suspicions), actions as submitted and as resolved, latencies, token usage.
 
+## Results so far and the next study
+
+AI-only results, with tests and confidence intervals, are in the README ("Findings so far"); reproduce them with `python3 scripts/stats.py data/games`. The first human study is planned in [PREREGISTRATION.md](PREREGISTRATION.md).
+
 ## Suggested first studies (start with Tethered)
 
 1. **Baselines (free):** `npm run sim -- --game tethered --seats bot,bot,bot --games 500 --quiet`, and the same with `bot:selfish`.

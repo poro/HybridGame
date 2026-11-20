@@ -1,6 +1,6 @@
 # HybridGame
 
-A research testbed for **mixed human + AI teams**. Humans and AI models (Claude Opus / Sonnet / Haiku / Fable, OpenAI models, scripted bots) play cooperative games at the same table. Every message, action, private AI note and post-game debrief is logged, so you can compare how teams of different makeup cooperate.
+A research testbed for **mixed human + AI teams**. Humans and AI models (Claude Opus / Sonnet / Haiku / Fable, OpenAI models, scripted bots) play cooperative games at the same table. Every message, action, AI memo, Claude thinking summary and post-game debrief is logged, so you can compare how teams of different makeup cooperate.
 
 There are two games:
 
@@ -8,6 +8,23 @@ There are two games:
 |---|---|---|
 | **Tethered** (visual) | A rope team climbs a cliff together. Simple rules; you watch the climbers move, talk, fall and catch each other. | Seeing human/AI interaction; quick sessions; demos |
 | **Outpost** (text) | Survival camp with roles, private food pouches and a beacon to build. | Deeper social dilemmas (sharing vs hoarding, keeping promises) |
+
+## Findings so far (AI-only games)
+
+138 error-free, blind games with Claude Opus, Sonnet and Haiku 5.5 (no human has finished a game yet, and OpenAI models haven't played). Small samples: treat these as hypotheses for the human games.
+
+| What we saw | Why it matters for AI teammates |
+|---|---|
+| The same model plays differently with different teammates: Haiku climbed on 34% of its turns with other Haikus, 63% with Opus and Sonnet. | Testing a model alone can miss how it behaves on a team. |
+| Team mix decides the outcome: Opus + Sonnet + Haiku summited 16 of 16 games, three Haikus 0 of 16, on the same cliffs. | Who a model is paired with matters as much as the model. |
+| Teams failed mostly by being too careful (about 90% of loose holds called out), not by being reckless. | Caution is the default. Open question: does it hold next to people who take risks? |
+| Two small wording changes, harmless alone, together cost the mixed team 3 of 6 summits. | Multi-agent behaviour is sensitive to instructions; test changes one at a time. |
+| In blind debriefs, Haiku flagged an AI teammate in 2 of 64 guesses; Sonnet identified its AI teammates in 23 of 32 games. | Bears on disclosure: will people know when a teammate is an AI? |
+| Asking models to write out their reasoning in a field was declined by Anthropic's reasoning-extraction safeguard. | The design now uses a short memo plus the API's summarized thinking: it works with the safeguards, not around them. |
+
+**How results are kept honest:** teams are compared on the same seeded maps; rule versions are logged and never mixed; games with any error or timeout are set aside and replayed; costs are recorded exactly; scripted-bot results are always labelled as such. Three conclusions have been corrected openly as more data came in.
+
+**How it was built:** the code was written with [Claude Code](https://claude.com/claude-code) (Claude Opus 5.5), with the author directing the project and reviewing the results. The AI players are Claude models called through the Anthropic API.
 
 ## Tethered: the rope game
 

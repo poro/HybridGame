@@ -24,10 +24,11 @@ The question for this study is whether a **person's** play shifts with their AI 
 |---|---|---|
 | H1 | People climb on a larger share of their turns next to strong AI teammates than next to weak ones. | One-sided permutation test on climb share (climbs ÷ actions) |
 | H2 | Teams with strong AI teammates summit more often. | One-sided Fisher exact test |
-| H3 | In blind games, the AI teammates identify the person as human above chance. | One-sided binomial test vs 50% |
 | H4 | Revealing identities changes people's trust in their AI teammates (debrief, 1 to 7). | Two-sided permutation test |
 
-α = 0.05, Holm correction across H1 to H4. All other measures (warn rate, support anchors, catches, chat length, people's identity guesses) are exploratory and reported as such.
+α = 0.05, Holm correction across H1, H2 and H4. All other measures (warn rate, support anchors, catches, chat length, people's identity guesses) are exploratory and reported as such.
+
+**Manipulation check (was H3).** How often the AI teammates identify the person as human in blind games is reported descriptively (rate and 95% CI), not tested as a hypothesis. In the first practice game both AIs named the human correctly from writing style alone (see "Pilot lessons"), so a test against 50% would be uninformative. "Blind" in this study means names and seat types are hidden, not that the person is undetectable; Factor B is read as "identities stated vs. hidden", and H4 is interpreted with the detection rate in view.
 
 ## Sample size
 
@@ -46,6 +47,17 @@ Haiku + 2 scripted cooperative bots on the same 16 seeds (condition `haiku-bot-c
 - **Exploratory measure E1:** the share of the person's messages that give an all-clear (keyword count, as in `scripts/stats.py`), and how it relates to the AI teammates' climb share.
 - **Second control (done 2026-11-20):** the same bots plus an all-clear sentence (`bot:allclear`, condition `haiku-allclear-control`). Haiku's climbing rose from 16% to 41% (+25 points, 95% CI 18 to 32, p < 0.001). Explicit all-clears cause about half of the teammate effect.
 - **Exploratory measure E2:** the AI teammates' all-clear rate to the person, as a possible mediator of H1 (strong teammates gave all-clears in 76% of messages, Haikus in 49%).
+
+## Pilot lessons (researcher practice game, 2026-11-21)
+
+One game, the researcher with Opus + Haiku, blind, rules v2, condition `practice-researcher`. Not evidence about the hypotheses; it changed the design as follows.
+
+1. **Identity is obvious from style.** The person wrote 56 words in 20 rounds (Opus 591, Haiku 461), left 9 rounds silent, and wrote in short lowercase commands. Both AIs guessed "human" correctly and rated the person's trust 3 against 6 for each other. → H3 becomes a manipulation check (above).
+2. **Climb share may hit a ceiling for people.** The person climbed on 85% of turns (Opus 70%, Haiku 50%) and anchored to support a teammate once (Opus 6, Haiku 10). The failure was the reverse of Haiku's: not hesitation but stepping off-plan onto a hold a teammate had called loose, with no anchor, falling 3 rows. Before registering, check climb share's spread in the family pilot. If most people sit near the top, make the primary H1 measure **E3** below instead, and record that switch here before the first confirmatory game.
+   - **E3 (exploratory unless promoted):** risky steps, i.e. the share of a person's moves onto a hold that a teammate had named in chat while knowing it was loose, earlier in the game and before it was broken; and plan adherence, i.e. the share of rounds where the person's move matches what a teammate proposed for them that round (hand-coded).
+3. **Short human messages are ambiguous.** "a7 lets go" (meant as "A7, let's go") was relayed by Haiku as a loose-hold warning. The keyword counts in `scripts/stats.py` were built on AI sentences and would misread it the same way. → All human messages, and AI messages addressed to the person, are hand-coded for warnings, all-clears, questions and proposals by two coders blind to condition; report Cohen's κ. Keyword counts are used only for AI-to-AI messages, after checking them against a hand-coded sample.
+4. **The AIs paired up.** They agreed with each other almost every round and twice moved the person down a row to let the other AI pass. → Exploratory: share of AI messages addressed to the person vs. to the other AI, and how often a plan moves the person down.
+5. **Empty debrief.** The free-text reflection was skipped. → Before the study, make a one-sentence reflection required and add two fixed-choice items (who led the plan; whether the person felt included).
 
 ## Ethics and data
 

@@ -128,6 +128,8 @@ h2 .tab { flex: none; display: inline-grid; place-items: center; width: 44px; he
 h3 { font-size: 1.1rem; font-weight: 700; margin: 1.8em 0 .5em; }
 ul, ol { padding-left: 1.3em; margin: 0 0 1em; }
 li { margin: .25em 0; }
+#references ~ ul { list-style: none; padding-left: 0; font-size: .9rem; }
+#references ~ ul li { padding-left: 1.6em; text-indent: -1.6em; margin: 0 0 .55em; overflow-wrap: anywhere; }
 
 .contents { border-top: 4px solid var(--asu-maroon); background: var(--surface-raised); padding: 16px 20px; margin-bottom: 1em; }
 .contents ol { list-style: none; padding: 0; margin: 10px 0 0; columns: 2 220px; column-gap: 32px; }
@@ -208,6 +210,8 @@ footer small { color: var(--ink-muted); font-size: 12px; }
   tr, .fig { break-inside: avoid; }
   .chart .bar { animation: none; }
   .shot img { max-width: 3.4in; }
+  footer { padding-block: 14px 0; break-inside: avoid; }
+  footer .marks img { height: 26px; }
   a { color: inherit; text-decoration: none; }
 }
 """

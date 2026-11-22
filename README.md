@@ -32,7 +32,7 @@ There are two games:
 
 **White paper:** [docs/whitepaper/whitepaper.pdf](docs/whitepaper/whitepaper.pdf) (*Same Model, Different Team*, Endless Games and Learning Lab, 2026-11-21): the results so far, the controls, limits and the revised human study. Source: `docs/whitepaper/WHITEPAPER.md`; rebuild with `uv run --with markdown python docs/whitepaper/build.py --pdf`.
 
-**Slide deck:** [docs/HybridGame-deck.pdf](docs/HybridGame-deck.pdf) (31 slides, exported 2026-11-20): the games, the AI-only results, the controls, limits and the planned human study.
+**Slide deck:** [docs/HybridGame-deck.pdf](docs/HybridGame-deck.pdf) (32 slides, exported 2026-11-21): the games, the AI-only results, the controls, limits, the planned human study and the white paper.
 
 **How it was built:** the code was written with [Claude Code](https://claude.com/claude-code) (Claude Opus 5.5), with the author directing the project and reviewing the results. The AI players are Claude models called through the Anthropic API.
 

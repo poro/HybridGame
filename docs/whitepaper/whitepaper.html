@@ -11,6 +11,7 @@
   --surface: #ffffff; --surface-raised: #f6f4fb; --ink: #231f20; --ink-muted: #484848; --hairline: #e8e8e8;
   --border: #747474; --accent: #8c1d40; --on-accent: #ffffff; --focus-ring: #8c1d40; --cell: #ffc627;
   --sans: "Neue Haas Grotesk Display Pro", "Neue Haas Grotesk", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --text: "Neue Haas Grotesk Text Pro", "Neue Haas Grotesk Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   --logo-light: block; --logo-dark: none;
 }
@@ -23,7 +24,8 @@
   --border: #9a7d8a; --accent: #ffca38; --on-accent: #2b0d1a; --focus-ring: #ffca38; --cell: #ffca38;
   --logo-light: none; --logo-dark: block; color-scheme: dark }
 
-body { background: var(--surface); color: var(--ink); font: 16px/1.6 var(--sans); margin: 0; }
+body { background: var(--surface); color: var(--ink); font: 16px/1.6 var(--text); margin: 0; }
+h1, h2, h3, .cover, .eyebrow, .tab, th { font-family: var(--sans); }
 .gutter { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 .col { max-width: 760px; margin: 0 auto; }
 
@@ -464,8 +466,8 @@ footer small { color: var(--ink-muted); font-size: 12px; }
 </ul>
 <h2 id="13-reproducibility-and-how-this-was-built"><span class="tab">13</span><span>Reproducibility and how this was built</span></h2>
 <p>Every game is seeded and logs its rules version, full chat, actions, model memos, thinking summaries, token use and cost. Teams are compared on the same maps, games with any error are set aside and replayed, bot results are always labelled as such, and three conclusions have been corrected openly as more data arrived. Statistics come from one script (<code>scripts/stats.py</code>) run on the game summaries.</p>
-<p>Participant data, including all chat and debrief answers, is kept in a separate private repository and is never published raw. The code is in a private repository, available on request.</p>
-<p>The platform was written with Claude Code (Claude Opus 5.5), with the author directing the project, designing the studies and reviewing every result. The AI players are Claude models called through the Anthropic API.</p>
+<p>Participant data, including all chat and debrief answers, is kept in a separate private repository and is never published raw. The code, the rules, the analysis script and the source of this paper are public at https://github.com/poro/HybridGame.</p>
+<p>The platform was written with Claude Code (Claude Opus 5.5), with the author directing the project, designing the studies and reviewing every result. The text of this paper and the slide deck were also drafted with Claude (Opus 5.5) in Claude Code, from the game logs and analysis; the author directed and reviewed them and is responsible for their content. The AI players are Claude models called through the Anthropic API.</p>
 <h2 id="references">References</h2>
 <ul>
 <li>Akata, E., Schulz, L., Coda-Forno, J., Oh, S. J., Bethge, M., &amp; Schulz, E. (2025). Playing repeated games with large language models. <em>Nature Human Behaviour, 9</em>(7), 1380-1390. https://doi.org/10.1038/s41562-025-02172-y</li>

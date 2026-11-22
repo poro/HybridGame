@@ -195,9 +195,9 @@ The practice game changed four things. Whether the models spot the person, first
 
 Every game is seeded and logs its rules version, full chat, actions, model memos, thinking summaries, token use and cost. Teams are compared on the same maps, games with any error are set aside and replayed, bot results are always labelled as such, and three conclusions have been corrected openly as more data arrived. Statistics come from one script (`scripts/stats.py`) run on the game summaries.
 
-Participant data, including all chat and debrief answers, is kept in a separate private repository and is never published raw. The code is in a private repository, available on request.
+Participant data, including all chat and debrief answers, is kept in a separate private repository and is never published raw. The code, the rules, the analysis script and the source of this paper are public at https://github.com/poro/HybridGame.
 
-The platform was written with Claude Code (Claude Opus 5.5), with the author directing the project, designing the studies and reviewing every result. The AI players are Claude models called through the Anthropic API.
+The platform was written with Claude Code (Claude Opus 5.5), with the author directing the project, designing the studies and reviewing every result. The text of this paper and the slide deck were also drafted with Claude (Opus 5.5) in Claude Code, from the game logs and analysis; the author directed and reviewed them and is responsible for their content. The AI players are Claude models called through the Anthropic API.
 
 ## References
 

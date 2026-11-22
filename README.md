@@ -34,7 +34,7 @@ There are two games:
 
 **Slide deck:** [docs/HybridGame-deck.pdf](docs/HybridGame-deck.pdf) (32 slides, exported 2026-11-21): the games, the AI-only results, the controls, limits, the planned human study and the white paper.
 
-**How it was built:** the code was written with [Claude Code](https://claude.com/claude-code) (Claude Opus 5.5), with the author directing the project and reviewing the results. The AI players are Claude models called through the Anthropic API.
+**How it was built:** the code, the white paper and the slide deck were written with [Claude Code](https://claude.com/claude-code) (Claude Opus 5.5), with the author directing the project and reviewing the results. The AI players are Claude models called through the Anthropic API.
 
 ## Tethered: the rope game
 

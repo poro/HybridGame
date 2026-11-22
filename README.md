@@ -30,6 +30,8 @@ There are two games:
 
 **How results are kept honest:** teams are compared on the same seeded maps; rule versions are logged and never mixed; games with any error or timeout are set aside and replayed; costs are recorded exactly; scripted-bot results are always labelled as such. Three conclusions have been corrected openly as more data came in.
 
+**One-page summary:** [docs/SUMMARY.md](docs/SUMMARY.md) (styled: [docs/summary.html](docs/summary.html)): the game, the findings, the controls, the next study, how to watch games, and related work.
+
 **White paper:** [docs/whitepaper/whitepaper.pdf](docs/whitepaper/whitepaper.pdf) (*Same Model, Different Team*, Endless Games and Learning Lab, 2026-11-21): the results so far, the controls, limits and the revised human study. Source: `docs/whitepaper/WHITEPAPER.md`; rebuild with `uv run --with markdown python docs/whitepaper/build.py --pdf`.
 
 **Slide deck:** [docs/HybridGame-deck.pdf](docs/HybridGame-deck.pdf) (34 slides, exported 2026-11-21): the games, the AI-only results, the controls, limits, the planned human study, the white paper and references.
